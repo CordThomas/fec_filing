@@ -1,0 +1,1 @@
+xlrd @ file:///home/conda/feedstock_root/build_artifacts/xlrd_1756170038895/work
