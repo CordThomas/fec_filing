@@ -28,7 +28,7 @@ NAMES_LIST_FILE = 'names.txt'
 
 FORM_TYPE = 'SA11AI'
 ENTITY_TYPE = 'IND'
-MCAN = 0
+MCAN = 1
 
 
 def generate_csv_header(xls_worksheet: xlrd.sheet.Sheet) -> list[str]:
@@ -37,8 +37,6 @@ def generate_csv_header(xls_worksheet: xlrd.sheet.Sheet) -> list[str]:
     :param xls_worksheet: FECfile template worksheet
     :return: A list of table field headers
     """
-
-    print(type(xls_worksheet))
 
     header_list = []
     for col_index in range(21):
@@ -55,9 +53,7 @@ def load_previous_unique_people() -> list[str]:
 
     unique_names = []
     with open(DATA_DIR + NAMES_LIST_FILE, 'r') as names_file:
-        names_reader = csv.reader(names_file)
-        for name in names_reader:
-            unique_names.append(name)
+        unique_names = [line.strip() for line in names_file]
 
     return unique_names
 
@@ -72,7 +68,7 @@ def append_new_unique_people(new_people_names_list: list[str]):
 
     with open(DATA_DIR + NAMES_LIST_FILE, 'a') as names_file:
         for name in new_people_names_list:
-            names_file.write(name)
+            names_file.write(name + '\n')
 
 
 def main():
@@ -80,8 +76,10 @@ def main():
 
     row_serial_number = 1
     unique_people = load_previous_unique_people()
+    unique_people_new = []
     fec_template_workbook = xlrd.open_workbook(DATA_DIR + FEC_SCHEDULE_A_TEMPLATE)
     schedule_a_worksheet = fec_template_workbook.sheet_by_name(FEC_SCHEDULE_A_SHEET)
+
     with open(TARGET_WINDOWS_DIRECTORY +
               FEC_FORMATTED_CSV, 'w') as fec_csv:
         csv_writer = csv.writer(fec_csv)
@@ -111,7 +109,10 @@ def main():
 
                     csv_writer.writerow(fec_row)
                     unique_people.append(FULL_NAME)
+                    unique_people_new.append(FULL_NAME)
                     row_serial_number += 1
+
+    append_new_unique_people(unique_people_new)
 
 
 if __name__ == "__main__":
